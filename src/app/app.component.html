@@ -1,1 +1,17 @@
-<div class="container"></div>
+<!-- <div class="container"></div> -->
+
+<!-- <app-scroll *ngIf="colors$ | async as colors">
+  <div>{{ colors | json }}</div>
+</app-scroll> -->
+
+<!-- <div *ngFor="let color of colors$ | async">
+  <div [ngStyle]="{ 'background-color': color.color }">
+    {{ color.color }}
+  </div>
+</div> -->
+
+<div *ngFor="let color of colorsArr">
+  <div [ngStyle]="{ 'background-color': color.color }">
+    {{ color.color }}
+  </div>
+</div>

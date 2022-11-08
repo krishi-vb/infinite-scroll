@@ -9,7 +9,7 @@ import { ColorsService } from 'src/app/services/colors.service';
 export class ScrollComponent implements OnInit {
   constructor(private colors: ColorsService) {}
 
-  ngOnInit(): void {
-    this.colors.getColors().subscribe(console.log);
-  }
+  colors$ = this.colors.getColors(1);
+
+  ngOnInit(): void {}
 }
