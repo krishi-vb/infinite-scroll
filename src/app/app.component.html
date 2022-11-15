@@ -12,6 +12,6 @@
 
 <div *ngFor="let color of colorsArr">
   <div [ngStyle]="{ 'background-color': color.color }">
-    {{ color.color }}
+    {{ color.color }} {{ color.name }}
   </div>
 </div>

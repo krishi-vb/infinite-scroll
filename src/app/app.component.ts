@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { fromEvent, map, Observable, Subject, takeUntil } from 'rxjs';
+import { fromEvent, map, Observable, Subject, takeUntil, tap } from 'rxjs';
 import { ColorDetail, ColorsResponse } from './models/types';
 import { ColorsService } from './services/colors.service';
 
@@ -11,12 +11,11 @@ import { ColorsService } from './services/colors.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'infinite-scroll';
 
-  pageForAPI = 0;
+  pageForAPI = 1;
 
-  // colors$: Observable<ColorDetail[]> = this.colors.getColors();
   colorsArr: ColorDetail[] = [];
 
-  scrollObservable$!: Observable<unknown>;
+  scrollObservable$: Observable<number>;
 
   private destroy$: Observable<unknown>;
 
@@ -34,29 +33,32 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.getColors();
+    this.getInitialColors();
+
     console.log(this.documentHeight);
+
     this.scrollObservable$.subscribe((scrollTop) => {
-      if ((scrollTop as number) > 976) {
+      console.log(scrollTop);
+      // if (scrollTop > this.pageForAPI * 3 * this.documentHeight * 0.8) {
+      //   this.pageForAPI++;
+      //   this.bringMoreColors();
+      // }
+
+      if (scrollTop > this.pageForAPI * 3 * this.documentHeight * 0.6) {
+        this.pageForAPI++;
         this.bringMoreColors();
       }
     });
-
-    // this.scrollObservable$.subscribe((scrollTop) =>
-    //   console.log(typeof scrollTop)
-    // );
   }
 
   ngOnDestroy(): void {
     this._destroy.next(null);
   }
 
-  getColors() {
+  getInitialColors() {
     this.colors
       .getColors(this.pageForAPI)
       .subscribe((data) => this.colorsArr.push(...data));
-
-    this.pageForAPI++;
   }
 
   yPositionForEvent() {
@@ -65,9 +67,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   bringMoreColors() {
     console.log(this.pageForAPI);
+
     this.colors.getColors(this.pageForAPI).subscribe((data) => {
-      this.colorsArr.push(...data);
-      this.pageForAPI++;
+      if (data.length > 0) {
+        this.colorsArr.push(...data);
+      } else this._destroy.next(null);
     });
   }
 }
