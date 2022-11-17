@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { fromEvent, map, Observable, Subject, takeUntil, tap } from 'rxjs';
-import { ColorDetail, ColorsResponse } from './models/types';
+import { fromEvent, map, Observable, Subject, takeUntil } from 'rxjs';
+import { ColorDetail } from './models/types';
 import { ColorsService } from './services/colors.service';
 
 @Component({
@@ -28,22 +28,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.scrollObservable$ = fromEvent(document, 'scroll').pipe(
       takeUntil(this.destroy$),
-      map((data) => this.yPositionForEvent())
+      map(() => this.getScrollTopValue())
     );
   }
 
   ngOnInit(): void {
     this.getInitialColors();
 
-    console.log(this.documentHeight);
-
     this.scrollObservable$.subscribe((scrollTop) => {
-      console.log(scrollTop);
-      // if (scrollTop > this.pageForAPI * 3 * this.documentHeight * 0.8) {
-      //   this.pageForAPI++;
-      //   this.bringMoreColors();
-      // }
-
       if (scrollTop > this.pageForAPI * 3 * this.documentHeight * 0.6) {
         this.pageForAPI++;
         this.bringMoreColors();
@@ -61,16 +53,15 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((data) => this.colorsArr.push(...data));
   }
 
-  yPositionForEvent() {
+  getScrollTopValue() {
     return document.documentElement.scrollTop;
   }
 
   bringMoreColors() {
-    console.log(this.pageForAPI);
-
-    this.colors.getColors(this.pageForAPI).subscribe((data) => {
-      if (data.length > 0) {
-        this.colorsArr.push(...data);
+    console.log('bringing colors from page', this.pageForAPI);
+    this.colors.getColors(this.pageForAPI).subscribe((colorsArr) => {
+      if (colorsArr.length > 0) {
+        this.colorsArr.push(...colorsArr);
       } else this._destroy.next(null);
     });
   }

@@ -1,9 +1,3 @@
-// :host {
-//   width: 100vw;
-//   height: 100vh;
-//   margin: 0px;
-// }
-
 app-scroll {
   box-sizing: content-box;
   width: 100vw;
@@ -16,11 +10,8 @@ div {
   height: 100vh;
 }
 
-// .container {
-//   box-sizing: content-box;
-//   width: 100vw;
-//   height: 100vh;
-//   //   min-width: 100%;
-//   //   min-height: 100%;
-//   background-color: red;
-// }
+.rectangle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

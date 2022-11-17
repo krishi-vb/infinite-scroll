@@ -9,10 +9,7 @@ import { ColorDetail, ColorsResponse } from '../models/types';
 export class ColorsService {
   constructor(private http: HttpClient) {}
 
-  // pageNumbers: number[] = [];
-
   getColors(page: number): Observable<ColorDetail[]> {
-    console.log('this is page', page);
     return this.http
       .get<ColorsResponse>(`https://reqres.in/api/unknown`, {
         params: new HttpParams().set('per_page', '3').set('page', `${page}`),
