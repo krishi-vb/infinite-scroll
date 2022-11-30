@@ -14,12 +14,12 @@ export class AppComponent implements OnInit {
 
   colorsArr: ColorDetail[] = [];
 
-  documentHeight = document.documentElement.clientHeight;
+  fetchingDisabled = false;
 
   @HostListener('window:scroll', ['$event']) scroll(event: Event) {
     if (
-      this.getScrollTopValue() >
-      this.pageForAPI * 3 * this.documentHeight * 0.6
+      window.innerHeight + window.scrollY >=
+      document.body.offsetHeight - 100
     ) {
       this.pageForAPI++;
       this.fetchNextThreeColors();
@@ -44,14 +44,12 @@ export class AppComponent implements OnInit {
 
   private fetchNextThreeColors() {
     console.log('bringing colors from page', this.pageForAPI);
-    let colorsSubscription = this.colors
-      .getColors(this.pageForAPI)
-      .subscribe((newColorsArr) => {
+    if (!this.fetchingDisabled) {
+      this.colors.getColors(this.pageForAPI).subscribe((newColorsArr) => {
         if (newColorsArr.length > 0) {
           this.colorsArr = [...this.colorsArr, ...newColorsArr];
-        } else {
-          colorsSubscription.unsubscribe();
-        }
+        } else this.fetchingDisabled = true;
       });
+    }
   }
 }
