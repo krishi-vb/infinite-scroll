@@ -48,9 +48,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getInitialColors() {
-    this.colors
-      .getColors(this.pageForAPI)
-      .subscribe((data) => this.colorsArr.push(...data));
+    this.colors.getColors(this.pageForAPI).subscribe((colorsArr) => {
+      this.colorsArr = [...colorsArr];
+    });
   }
 
   getScrollTopValue() {
@@ -61,7 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log('bringing colors from page', this.pageForAPI);
     this.colors.getColors(this.pageForAPI).subscribe((colorsArr) => {
       if (colorsArr.length > 0) {
-        this.colorsArr.push(...colorsArr);
+        this.colorsArr = [...this.colorsArr, ...colorsArr];
       } else this._destroy.next(null);
     });
   }
