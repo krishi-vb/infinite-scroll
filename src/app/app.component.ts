@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { fromEvent, map, Observable, Subject, takeUntil } from 'rxjs';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ColorDetail } from './models/types';
 import { ColorsService } from './services/colors.service';
 
@@ -15,54 +15,46 @@ export class AppComponent implements OnInit, OnDestroy {
 
   colorsArr: ColorDetail[] = [];
 
-  scrollObservable$: Observable<number>;
-
-  private destroy$: Observable<unknown>;
-
-  private _destroy = new Subject<unknown>();
-
   documentHeight = document.documentElement.clientHeight;
 
-  constructor(private colors: ColorsService) {
-    this.destroy$ = this._destroy.asObservable();
-
-    this.scrollObservable$ = fromEvent(document, 'scroll').pipe(
-      takeUntil(this.destroy$),
-      map(() => this.getScrollTopValue())
-    );
+  @HostListener('window:scroll', ['$event']) scroll(event: Event) {
+    if (
+      this.getScrollTopValue() >
+      this.pageForAPI * 3 * this.documentHeight * 0.6
+    ) {
+      this.pageForAPI++;
+      this.fetchNextThreeColors();
+    }
   }
+
+  constructor(private colors: ColorsService) {}
 
   ngOnInit(): void {
     this.getInitialColors();
-
-    this.scrollObservable$.subscribe((scrollTop) => {
-      if (scrollTop > this.pageForAPI * 3 * this.documentHeight * 0.6) {
-        this.pageForAPI++;
-        this.bringMoreColors();
-      }
-    });
   }
 
-  ngOnDestroy(): void {
-    this._destroy.next(null);
-  }
+  ngOnDestroy(): void {}
 
-  getInitialColors() {
+  private getInitialColors() {
     this.colors.getColors(this.pageForAPI).subscribe((colorsArr) => {
       this.colorsArr = [...colorsArr];
     });
   }
 
-  getScrollTopValue() {
+  private getScrollTopValue() {
     return document.documentElement.scrollTop;
   }
 
-  bringMoreColors() {
+  private fetchNextThreeColors() {
     console.log('bringing colors from page', this.pageForAPI);
-    this.colors.getColors(this.pageForAPI).subscribe((colorsArr) => {
-      if (colorsArr.length > 0) {
-        this.colorsArr = [...this.colorsArr, ...colorsArr];
-      } else this._destroy.next(null);
-    });
+    let colorsSubscription = this.colors
+      .getColors(this.pageForAPI)
+      .subscribe((newColorsArr) => {
+        if (newColorsArr.length > 0) {
+          this.colorsArr = [...this.colorsArr, ...newColorsArr];
+        } else {
+          colorsSubscription.unsubscribe();
+        }
+      });
   }
 }
